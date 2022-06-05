@@ -1,0 +1,24 @@
+FROM python:3.8.13-slim
+
+# Install the dependency management tools
+RUN pip install --upgrade pip
+RUN pip install poetry 
+RUN poetry config virtualenvs.create false
+
+# Set model type
+ENV MODEL baseline
+
+# Copy the files
+RUN mkdir services
+COPY services services
+WORKDIR /services
+
+# Install dependencies
+RUN poetry install 
+
+# Run the server
+EXPOSE 7080
+CMD poetry run uvicorn main:app --port 7080 --host 0.0.0.0
+
+
+

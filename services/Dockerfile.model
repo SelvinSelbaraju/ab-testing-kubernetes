@@ -1,0 +1,28 @@
+FROM python:3.9.10-slim
+WORKDIR /app
+
+# Install python packages
+RUN pip install poetry
+RUN poetry config virtualenvs.create false
+COPY pyproject.toml poetry.lock ./
+RUN poetry install
+
+COPY models models
+
+# Copy source code
+COPY PrepTimeModel.py .
+
+# Port for GRPC
+EXPOSE 6000
+# Port for REST
+EXPOSE 9000
+
+# Define environment variables
+ENV MODEL_NAME PrepTimeModel
+ENV SERVICE_TYPE MODEL
+ENV VERSION A
+
+# Changing folder to default user
+RUN chown -R 8888 /app
+
+CMD exec seldon-core-microservice $MODEL_NAME --service-type $SERVICE_TYPE
